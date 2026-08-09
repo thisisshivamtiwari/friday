@@ -10,12 +10,12 @@ import CoreAudio
 /// (output-only) to low-quality bidirectional HFP/SCO (~8kHz mono) - the same profile
 /// phone calls use, because the OS now needs a two-way channel. This both degrades AirPods
 /// audio system-wide and is a documented source of ScreenCaptureKit system-audio capture
-/// silently producing zero callbacks. This app runs two microphone taps continuously
-/// (AudioCaptureManager, SpeechRecognitionEngine) - if either grabs AirPods as the input
+/// silently producing zero callbacks. This app's microphone tap (AudioCaptureManager) runs
+/// continuously - if it grabs AirPods as the input
 /// device (which happens automatically once they're connected, since they become the
 /// system default input), it drags AirPods into SCO mode and breaks
 /// SystemAudioCaptureManager's ability to read AirPods' own output cleanly. Pinning our
-/// mic taps to the built-in mic keeps a connected Bluetooth output device in clean A2DP.
+/// mic tap to the built-in mic keeps a connected Bluetooth output device in clean A2DP.
 enum PreferredAudioInputDevice {
     static func pinToBuiltInMicrophone(_ engine: AVAudioEngine) {
         guard let builtInDeviceID = builtInMicrophoneDeviceID() else {

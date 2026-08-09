@@ -2,21 +2,16 @@ import Foundation
 import AVFoundation
 
 // MARK: - Audio Capture Manager
-/// Captures the user's own microphone. This is deliberately NOT sent to Gemini in
-/// Meeting mode: the mic is the user's own voice, which is transcribed locally (see
-/// SpeechRecognitionEngine) and shown as "You" in the chat feed. What Gemini listens to
-/// in Meeting mode is system audio output instead (see SystemAudioCaptureManager) - i.e.
-/// other meeting participants, not the user. In Personal Assistant mode, `onPCM16Chunk`
-/// IS wired up (by AppDelegate) since the user is deliberately talking to the assistant
-/// there.
+/// Captures the user's own microphone and streams it to Gemini alongside system audio (see
+/// SystemAudioCaptureManager) - the assistant is always listening to everything, both sides
+/// of any conversation, regardless of source. There's no separate mode where the mic is
+/// withheld: AppDelegate wires `onPCM16Chunk` unconditionally.
 /// https://developer.apple.com/documentation/avfoundation/avaudioengine
 final class AudioCaptureManager: NSObject {
     private var audioEngine: AVAudioEngine?
     private let audioInputBus = 0
 
-    /// Fires with 16-bit PCM, 16kHz, mono audio - only actually consumed in Personal
-    /// Assistant mode. In Meeting mode this is left unwired; the mic still only drives
-    /// the local on-device transcript ("You" bubbles), never Gemini.
+    /// Fires with 16-bit PCM, 16kHz, mono audio, forwarded to the live Gemini session
     var onPCM16Chunk: ((Data) -> Void)?
 
     private var converter: AVAudioConverter?
@@ -94,7 +89,7 @@ final class AudioCaptureManager: NSObject {
     }
 
     /// Converts the tap's native-format buffer to 16-bit PCM/16kHz/mono and forwards it.
-    /// Cheap no-op when `onPCM16Chunk` isn't wired up (Meeting mode).
+    /// Cheap no-op if `onPCM16Chunk` somehow isn't wired up yet.
     private func emitPCM16Chunk(from buffer: AVAudioPCMBuffer) {
         guard let converter, let onPCM16Chunk else { return }
 

@@ -5,9 +5,8 @@ import AVFoundation
 /// Captures macOS system audio OUTPUT - what's actually playing through the speakers or a
 /// connected Bluetooth device - rather than the microphone. In a real meeting, this is where
 /// other participants' voices actually come from (Zoom/Teams/Meet render remote audio to the
-/// system output), so this is the correct source to feed Gemini for "what did the meeting say"
-/// suggestions. The user's own mic is handled entirely separately (see AudioCaptureManager /
-/// SpeechRecognitionEngine) and is never sent here.
+/// system output), so this is one of the two sources (alongside the mic, see
+/// AudioCaptureManager) that feed the same always-on Gemini session.
 /// https://developer.apple.com/documentation/screencapturekit
 final class SystemAudioCaptureManager: NSObject {
     private var stream: SCStream?
@@ -27,7 +26,8 @@ final class SystemAudioCaptureManager: NSObject {
     /// keep re-triggering the system permission dialog on every click.
     private var hasPromptedForScreenCaptureThisLaunch = false
 
-    /// Fires with 16-bit PCM, 16kHz, mono audio - other participants' voices only
+    /// Fires with 16-bit PCM, 16kHz, mono audio - other participants' voices (from system
+    /// audio output), forwarded to the same live Gemini session as the mic
     var onPCM16Chunk: ((Data) -> Void)?
 
     /// Starts capturing system audio output. Requires Screen Recording permission (the same

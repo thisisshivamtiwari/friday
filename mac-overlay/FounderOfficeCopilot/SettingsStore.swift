@@ -109,9 +109,7 @@ final class SettingsStore: ObservableObject {
     }
 
     private static let defaultRules = """
-    You are a real-time meeting copilot. Listen to the conversation and, when useful, \
-    suggest one short, natural intervention line the user could say next. Be concise \
-    and concrete, not generic.
+    Be concise and concrete, not generic. Favor a clear point of view over a vague summary.
     """
 }
 

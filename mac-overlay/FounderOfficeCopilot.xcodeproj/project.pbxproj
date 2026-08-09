@@ -18,7 +18,6 @@
 		6E4D8B742B4C9A7600123456 /* ChatMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E4D8B642B4C9A7500123456 /* ChatMessage.swift */; };
 		6E4D8B752B4C9A7600123456 /* AIEngineController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E4D8B652B4C9A7500123456 /* AIEngineController.swift */; };
 		6E4D8B762B4C9A7600123456 /* TeamsParticipantDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E4D8B662B4C9A7500123456 /* TeamsParticipantDetector.swift */; };
-		6E4D8B772B4C9A7600123456 /* SpeechRecognitionEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E4D8B672B4C9A7500123456 /* SpeechRecognitionEngine.swift */; };
 		6E4D8B792B4C9A7600123456 /* HotKeyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E4D8B692B4C9A7500123456 /* HotKeyManager.swift */; };
 		6E4D8B7B2B4C9A7700123456 /* PreferredAudioInputDevice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E4D8B7A2B4C9A7700123456 /* PreferredAudioInputDevice.swift */; };
 		6E4D8B7D2B4C9A7800123456 /* AvatarBlobView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E4D8B7C2B4C9A7800123456 /* AvatarBlobView.swift */; };
@@ -40,7 +39,6 @@
 		6E4D8B642B4C9A7500123456 /* ChatMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatMessage.swift; sourceTree = "<group>"; };
 		6E4D8B652B4C9A7500123456 /* AIEngineController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIEngineController.swift; sourceTree = "<group>"; };
 		6E4D8B662B4C9A7500123456 /* TeamsParticipantDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TeamsParticipantDetector.swift; sourceTree = "<group>"; };
-		6E4D8B672B4C9A7500123456 /* SpeechRecognitionEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechRecognitionEngine.swift; sourceTree = "<group>"; };
 		6E4D8B692B4C9A7500123456 /* HotKeyManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotKeyManager.swift; sourceTree = "<group>"; };
 		6E4D8B7A2B4C9A7700123456 /* PreferredAudioInputDevice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferredAudioInputDevice.swift; sourceTree = "<group>"; };
 		6E4D8B7C2B4C9A7800123456 /* AvatarBlobView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AvatarBlobView.swift; sourceTree = "<group>"; };
@@ -88,7 +86,6 @@
 				6E4D8B642B4C9A7500123456 /* ChatMessage.swift */,
 				6E4D8B652B4C9A7500123456 /* AIEngineController.swift */,
 				6E4D8B662B4C9A7500123456 /* TeamsParticipantDetector.swift */,
-				6E4D8B672B4C9A7500123456 /* SpeechRecognitionEngine.swift */,
 				6E4D8B692B4C9A7500123456 /* HotKeyManager.swift */,
 				6E4D8B7A2B4C9A7700123456 /* PreferredAudioInputDevice.swift */,
 				6E4D8B7C2B4C9A7800123456 /* AvatarBlobView.swift */,
@@ -178,7 +175,6 @@
 				6E4D8B742B4C9A7600123456 /* ChatMessage.swift in Sources */,
 				6E4D8B752B4C9A7600123456 /* AIEngineController.swift in Sources */,
 				6E4D8B762B4C9A7600123456 /* TeamsParticipantDetector.swift in Sources */,
-				6E4D8B772B4C9A7600123456 /* SpeechRecognitionEngine.swift in Sources */,
 				6E4D8B792B4C9A7600123456 /* HotKeyManager.swift in Sources */,
 				6E4D8B7B2B4C9A7700123456 /* PreferredAudioInputDevice.swift in Sources */,
 				6E4D8B7D2B4C9A7800123456 /* AvatarBlobView.swift in Sources */,

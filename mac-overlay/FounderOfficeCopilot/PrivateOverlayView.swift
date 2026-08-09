@@ -2,13 +2,15 @@ import SwiftUI
 
 // MARK: - UI View
 /// Main SwiftUI interface: a Jarvis-style HUD - a glowing avatar as the primary "is it
-/// listening / thinking" indicator, with a scrollable chat feed of what was heard and what
-/// to say beneath it. Fully responsive: no fixed frame, so the window can be resized from
-/// small to large to maximized (see PrivateOverlayWindowController) and this layout adapts.
+/// listening / responding" indicator, with a scrollable feed of everything heard and every
+/// response given. Always listening, never replies automatically - see the shortcuts cheat
+/// sheet (top-right) for how to trigger a response. Fully responsive: no fixed frame, so the
+/// window can be resized from small to large to maximized and this layout adapts.
 struct PrivateOverlayView: View {
     @ObservedObject var aiEngine: AIEngineController
     @ObservedObject private var settings = SettingsStore.shared
     @ObservedObject private var captureVisibility = CaptureVisibilityState.shared
+    @State private var showShortcuts = false
 
     var body: some View {
         GeometryReader { geo in
@@ -19,6 +21,7 @@ struct PrivateOverlayView: View {
                     debugVisibleBanner
                 }
                 header(compact: isCompact, availableWidth: geo.size.width)
+                    .overlay(alignment: .topTrailing) { shortcutsButton }
                 if !aiEngine.teamsParticipants.isEmpty {
                     participantsRow
                 }
@@ -54,14 +57,57 @@ struct PrivateOverlayView: View {
             .background(Color.red.opacity(0.85))
     }
 
-    /// True while the model's reply for the current turn is still streaming in - the
-    /// avatar visibly speeds up/brightens the instant Gemini starts responding
+    /// True while the response for the current turn is still streaming in - the avatar
+    /// visibly speeds up/brightens the instant Gemini starts responding
     private var isStreaming: Bool {
         aiEngine.messages.last?.isStreaming ?? false
     }
 
-    /// The big centered hero avatar before anything's been said, in either mode. Once the
-    /// chat actually has content, `activeHeader` takes over instead - see `header` below.
+    // MARK: Shortcuts cheat sheet
+
+    private var shortcutsButton: some View {
+        Button {
+            showShortcuts.toggle()
+        } label: {
+            Image(systemName: "keyboard")
+                .font(.system(size: 12))
+                .foregroundColor(.gray)
+        }
+        .buttonStyle(.plain)
+        .padding(10)
+        .popover(isPresented: $showShortcuts, arrowEdge: .top) {
+            shortcutsList
+        }
+    }
+
+    private var shortcutsList: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("Shortcuts")
+                .font(.system(size: 12, weight: .bold))
+            shortcutRow("⌘⇧A", "Show / hide overlay")
+            shortcutRow("⌘⇧R", "Respond now")
+            shortcutRow("⌘⇧V", "Toggle visible in screenshots")
+            shortcutRow("2× click", "Maximize / restore window")
+        }
+        .padding(14)
+        .frame(width: 230)
+    }
+
+    private func shortcutRow(_ key: String, _ description: String) -> some View {
+        HStack(alignment: .top, spacing: 8) {
+            Text(key)
+                .font(.system(size: 11, weight: .semibold, design: .monospaced))
+                .frame(width: 78, alignment: .leading)
+            Text(description)
+                .font(.system(size: 11))
+                .foregroundColor(.secondary)
+        }
+    }
+
+    // MARK: Header
+
+    /// The big centered hero avatar before anything's been heard. Once the chat actually
+    /// has content, `activeHeader` takes over instead.
     @ViewBuilder
     private func header(compact: Bool, availableWidth: CGFloat) -> some View {
         if aiEngine.messages.isEmpty {
@@ -88,8 +134,8 @@ struct PrivateOverlayView: View {
         .padding(.bottom, 10)
     }
 
-    /// Small inline avatar once communication has actually started - frees up vertical
-    /// space for the chat feed instead of keeping the big idle hero avatar around
+    /// Small inline avatar once something's actually been heard - frees up vertical space
+    /// for the chat feed instead of keeping the big idle hero avatar around
     private var activeHeader: some View {
         HStack(spacing: 10) {
             AvatarBlobView(isActive: aiEngine.isActive, isStreaming: isStreaming)
@@ -109,9 +155,8 @@ struct PrivateOverlayView: View {
     }
 
     private var statusText: String {
-        let modeText = aiEngine.mode == .meeting ? "Meeting" : "Personal"
-        guard aiEngine.isActive else { return "\(modeText) · Stopped" }
-        return aiEngine.isLiveSessionActive ? "\(modeText) · Live · Gemini" : "\(modeText) · Local mode"
+        guard aiEngine.isActive else { return "Stopped" }
+        return aiEngine.isLiveSessionActive ? "Live · Gemini" : "Local mode"
     }
 
     private var participantsRow: some View {
@@ -142,7 +187,7 @@ struct PrivateOverlayView: View {
             ScrollView {
                 LazyVStack(alignment: .leading, spacing: 10) {
                     if aiEngine.messages.isEmpty {
-                        Text("Listening for the conversation to start…")
+                        Text("Listening… press ⌘⇧R whenever you want a response")
                             .font(.system(size: 12))
                             .foregroundColor(.gray)
                             .frame(maxWidth: .infinity, alignment: .center)
@@ -173,15 +218,15 @@ struct PrivateOverlayView: View {
     }
 }
 
-/// A single chat bubble - "Heard" (other participants, via system audio) leans left in a
-/// muted tone; "You" (your own mic) and "Say this" (the suggestion) lean right, in blue
-/// and yellow respectively, so all three are easy to tell apart while scrolling back.
+/// A single chat bubble - "Heard" (anything transcribed - your voice or anyone else's)
+/// leans left in a muted tone; "Response" leans right in an accent tone, so the two are
+/// easy to tell apart while scrolling back.
 struct ChatBubble: View {
     let message: ChatMessage
 
     var body: some View {
         HStack {
-            if message.role != .heard { Spacer(minLength: 32) }
+            if message.role == .response { Spacer(minLength: 32) }
 
             VStack(alignment: .leading, spacing: 3) {
                 Text(label)
@@ -202,29 +247,14 @@ struct ChatBubble: View {
     }
 
     private var label: String {
-        switch message.role {
-        case .you: return "You"
-        case .heard: return "Heard"
-        case .suggestion: return "Say this"
-        case .assistantReply: return "Assistant"
-        }
+        message.role == .heard ? "Heard" : "Response"
     }
 
     private var labelColor: Color {
-        switch message.role {
-        case .you: return .blue
-        case .heard: return .gray
-        case .suggestion: return .yellow
-        case .assistantReply: return .green
-        }
+        message.role == .heard ? .gray : .yellow
     }
 
     private var bubbleColor: Color {
-        switch message.role {
-        case .you: return Color.blue.opacity(0.14)
-        case .heard: return Color.white.opacity(0.06)
-        case .suggestion: return Color.yellow.opacity(0.14)
-        case .assistantReply: return Color.green.opacity(0.14)
-        }
+        message.role == .heard ? Color.white.opacity(0.06) : Color.yellow.opacity(0.14)
     }
 }

@@ -69,9 +69,23 @@ final class GeminiLiveMessageParserTests: XCTestCase {
         XCTAssertEqual(events.count, 2)
     }
 
-    func testUnrelatedTopLevelMessageProducesNoEvents() {
-        // e.g. sessionResumptionUpdate - a real message type the app deliberately ignores
+    func testSessionResumptionUpdateProducesEventWithHandle() {
+        // Required for sessions to survive past the ~10 minute single-connection lifetime -
+        // this handle gets passed back into a future setup message to resume with context
+        // intact instead of reconnecting blank. Real fixture shape from manual testing.
         let json = #"{"sessionResumptionUpdate": {"newHandle": "abc-123", "resumable": true}}"#
+        let events = GeminiLiveMessageParser.parse(json)
+        XCTAssertEqual(events.count, 1)
+        guard case .sessionResumptionUpdate(let handle) = events[0] else {
+            return XCTFail("expected .sessionResumptionUpdate, got \(events[0])")
+        }
+        XCTAssertEqual(handle, "abc-123")
+    }
+
+    func testUnrelatedTopLevelMessageProducesNoEvents() {
+        // usageMetadata-only messages (no serverContent, no sessionResumptionUpdate) are a
+        // real message shape the API sends that this app has no use for
+        let json = #"{"usageMetadata": {"promptTokenCount": 164, "totalTokenCount": 217}}"#
         XCTAssertTrue(GeminiLiveMessageParser.parse(json).isEmpty)
     }
 

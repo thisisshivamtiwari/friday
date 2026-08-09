@@ -3,7 +3,7 @@ import XCTest
 
 final class ChatMessageTests: XCTestCase {
     func testDefaultIsStreamingIsFalse() {
-        let message = ChatMessage(role: .you, text: "hello")
+        let message = ChatMessage(role: .heard, text: "hello")
         XCTAssertFalse(message.isStreaming)
     }
 
@@ -14,7 +14,7 @@ final class ChatMessageTests: XCTestCase {
     }
 
     func testRolesAreDistinct() {
-        let roles: [ChatMessage.Role] = [.you, .heard, .suggestion, .assistantReply]
+        let roles: [ChatMessage.Role] = [.heard, .response]
         XCTAssertEqual(Set(roles.map { "\($0)" }).count, roles.count, "each role case should be distinguishable")
     }
 }

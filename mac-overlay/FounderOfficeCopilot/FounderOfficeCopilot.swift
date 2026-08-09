@@ -22,7 +22,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var statusItem: NSStatusItem?
     private var windowController: PrivateOverlayWindowController?
     private var settingsWindowController: SettingsWindowController?
-    private var modeMenuItem: NSMenuItem?
     private var captureVisibilityMenuItem: NSMenuItem?
     private let audioManager = AudioCaptureManager()
     private let systemAudioManager = SystemAudioCaptureManager()
@@ -38,16 +37,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         setupHotkeys()
         initializeWindowController()
 
-        // Which audio source actually reaches Gemini depends on the current mode:
-        // Meeting mode -> system audio (other participants). Personal Assistant mode ->
-        // the mic (the user talking directly to the assistant). Both capture engines run
-        // continuously; only one's output is forwarded at a time.
+        // Single always-on assistant: both the mic (the user) and system audio (everyone
+        // else) always feed the same live session - there's no mode to gate this on.
+        // Nothing gets a reply automatically either way; that only happens when
+        // aiEngine.requestResponse() is triggered (see the Respond Now hotkey below).
         audioManager.onPCM16Chunk = { [weak self] chunk in
-            guard self?.aiEngine.mode == .personalAssistant else { return }
             self?.aiEngine.sendLiveAudioChunk(chunk)
         }
         systemAudioManager.onPCM16Chunk = { [weak self] chunk in
-            guard self?.aiEngine.mode == .meeting else { return }
             self?.aiEngine.sendLiveAudioChunk(chunk)
         }
 
@@ -73,10 +70,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         menu.addItem(withTitle: "Start listening", action: #selector(startAudioCapture), keyEquivalent: "")
         menu.addItem(withTitle: "Stop listening", action: #selector(stopAudioCapture), keyEquivalent: "")
         menu.addItem(NSMenuItem.separator())
-        let modeItem = NSMenuItem(title: "Switch to Personal Assistant mode", action: #selector(toggleAssistantMode), keyEquivalent: "p")
-        modeItem.keyEquivalentModifierMask = [.command, .shift]
-        menu.addItem(modeItem)
-        modeMenuItem = modeItem
+        let respondItem = NSMenuItem(title: "Respond Now", action: #selector(requestResponse), keyEquivalent: "r")
+        respondItem.keyEquivalentModifierMask = [.command, .shift]
+        menu.addItem(respondItem)
         menu.addItem(NSMenuItem.separator())
         let visibilityItem = NSMenuItem(title: "Visible in Screenshots (Debug)", action: #selector(toggleCaptureVisibility), keyEquivalent: "v")
         visibilityItem.keyEquivalentModifierMask = [.command, .shift]
@@ -108,9 +104,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         hotkey.registerHotKey(keyCode: UInt32(kVK_ANSI_A), modifiers: [.command, .shift]) { [weak self] in
             self?.toggleOverlay()
         }
-        // Cmd+Shift+P: Toggle Meeting / Personal Assistant mode
-        hotkey.registerHotKey(keyCode: UInt32(kVK_ANSI_P), modifiers: [.command, .shift]) { [weak self] in
-            self?.toggleAssistantMode()
+        // Cmd+Shift+R: Respond Now - the entire "ask the assistant" trigger. Everything
+        // heard since the last response becomes the context for this one.
+        hotkey.registerHotKey(keyCode: UInt32(kVK_ANSI_R), modifiers: [.command, .shift]) { [weak self] in
+            self?.requestResponse()
         }
         // Cmd+Shift+V: Toggle debug visibility (shows the overlay in screenshots/screen
         // share, so a UI problem can actually be captured to show someone)
@@ -144,10 +141,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         aiEngine.stop()
     }
 
-    @objc private func toggleAssistantMode() {
-        aiEngine.toggleMode()
-        let nowInPersonalMode = aiEngine.mode == .personalAssistant
-        modeMenuItem?.title = nowInPersonalMode ? "Switch to Meeting mode" : "Switch to Personal Assistant mode"
+    @objc private func requestResponse() {
+        aiEngine.requestResponse()
     }
 
     @objc private func toggleCaptureVisibility() {
