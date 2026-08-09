@@ -1,0 +1,1 @@
+../../../FounderOfficeCopilot/SettingsStore.swift

@@ -1,0 +1,3 @@
+.build/
+api-protocol-scripts/venv/
+__pycache__/

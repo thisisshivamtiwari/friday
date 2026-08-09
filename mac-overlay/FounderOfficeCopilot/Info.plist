@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>en</string>
+	<key>CFBundleExecutable</key>
+	<string>FounderOfficeCopilot</string>
+	<key>CFBundleIdentifier</key>
+	<string>com.founderoffice.copilot</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>Founder Office Copilot</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>1.0</string>
+	<key>CFBundleVersion</key>
+	<string>1</string>
+	<key>LSMinimumSystemVersion</key>
+	<string>13.0</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Founder Office Copilot needs access to your microphone to listen to the meeting and provide real-time suggestions.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>Founder Office Copilot uses speech recognition to transcribe your meeting in real time and generate contextual suggestions.</string>
+	<key>NSScreenCaptureUsageDescription</key>
+	<string>Founder Office Copilot uses screen capture to provide context-aware suggestions during your meeting.</string>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>Founder Office Copilot communicates with AI services to generate meeting suggestions.</string>
+	<key>NSBonjourServices</key>
+	<array>
+		<string>_http._tcp</string>
+	</array>
+	<key>NSPrincipalClass</key>
+	<string>NSApplication</string>
+	<key>NSHighResolutionCapable</key>
+	<true/>
+	<key>NSSupportsAutomaticGraphicsSwitching</key>
+	<true/>
+</dict>
+</plist>

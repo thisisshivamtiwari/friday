@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(security find-identity *)",
+      "Bash(DEVELOPER_DIR=\"/Users/shivamtiwari/Downloads/Xcode-beta.app/Contents/Developer\" xcodebuild -showBuildSettings -project /Applications/Softwares/ai-assistant/mac-overlay/FounderOfficeCopilot.xcodeproj -scheme FounderOfficeCopilot)",
+      "Bash(defaults read *)",
+      "Read(//Users/shivamtiwari/Library/Preferences/**)",
+      "Read(//Users/shivamtiwari/Library/Developer/Xcode/**)",
+      "Bash(DEVELOPER_DIR=\"/Users/shivamtiwari/Downloads/Xcode-beta.app/Contents/Developer\" xcodebuild -project FounderOfficeCopilot.xcodeproj -scheme FounderOfficeCopilot -configuration Debug -allowProvisioningUpdates build)",
+      "Bash(DEVELOPER_DIR=\"/Users/shivamtiwari/Downloads/Xcode-beta.app/Contents/Developer\" xcodebuild -project FounderOfficeCopilot.xcodeproj -scheme FounderOfficeCopilot -configuration Debug -allowProvisioningUpdates clean build)",
+      "Bash(log show *)",
+      "Bash(/usr/bin/log show *)",
+      "Bash(tccutil reset *)",
+      "Bash(kill 62252)",
+      "Bash(ps aux | grep -i \"FounderOfficeCopilot\" | grep -v grep *)",
+      "Read(//Users/shivamtiwari/Library/Logs/DiagnosticReports/**)",
+      "Bash(ls -t ~/Library/Logs/DiagnosticReports/ 2>/dev/null | grep -i founder | head -5)",
+      "Bash(kill 62931)",
+      "Bash(kill -9 62931)",
+      "Bash(ps -o pid,ppid,state,comm -p 62931)",
+      "Bash(pkill -9 -f \"FounderOfficeCopilot.app/Contents/MacOS/FounderOfficeCopilot\")",
+      "Bash(kill -9 62941)"
+    ]
+  }
+}
