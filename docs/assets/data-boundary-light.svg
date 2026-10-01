@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 400" width="1200" height="400" role="img" aria-label="Data boundary: transcripts, memory, projects and the API key stay on the Mac; live audio, the current turn, extraction batches and an optional screen still are sent to Gemini">
+<style>
+  text { font-family: -apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif; fill: #1f2328; }
+  .mono { font-family: ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; }
+  .muted { fill: #59636e; }
+  .accent { fill: #bc6c00; }
+  .link { fill: #5b5bd6; }
+  .good { fill: #1a7f37; }
+  .lane { font-size: 11px; font-weight: 700; letter-spacing: 1.6px; fill: #59636e; }
+  .card { fill: #ffffff; stroke: #d0d7de; stroke-width: 1.2; }
+  .panel { fill: #f6f8fa; stroke: #d0d7de; stroke-width: 1; }
+  .wire { stroke: #59636e; stroke-width: 1.6; fill: none; }
+  .flow { stroke: #bc6c00; stroke-width: 2; fill: none; stroke-dasharray: 6 7;
+           animation: flow 1.1s linear infinite; }
+  .bar { fill: #ffb847; transform-box: fill-box; transform-origin: center;
+          animation: wave 1.5s ease-in-out infinite; }
+  .pulse { transform-box: fill-box; transform-origin: center;
+            animation: pulse 3.2s ease-in-out infinite; }
+  @keyframes flow { to { stroke-dashoffset: -26; } }
+  @keyframes wave { 0%,100% { transform: scaleY(.35); } 50% { transform: scaleY(1); } }
+  @keyframes pulse { 0%,100% { transform: scale(.94); opacity: .75; }
+                      50% { transform: scale(1.06); opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) { .flow, .bar, .pulse { animation: none; } }
+</style>
+<defs><marker id="tip" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" fill="#59636e"/></marker><marker id="tipA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" fill="#bc6c00"/></marker></defs>
+<rect class="panel" x="1" y="1" width="1198" height="398" rx="16"/>
+<rect x="30" y="30" width="500" height="340" rx="14" fill="#e6f6ea" stroke="#1a7f37" stroke-width="1.3"/>
+<text x="56" y="70" font-size="19" font-weight="700" style="fill:#1a7f37">Stays on your Mac</text>
+<text class="muted" x="56" y="93" font-size="12.5">~/Library/Application Support/FounderOfficeCopilot/</text>
+<rect class="card" x="52" y="116" width="456" height="50" rx="9"/>
+<text x="70" y="137" font-size="14" font-weight="600">Every transcript and session</text>
+<text class="muted" x="70" y="155" font-size="12">ChatSessions store, never trimmed or deleted</text>
+<rect class="card" x="52" y="176" width="456" height="50" rx="9"/>
+<text x="70" y="197" font-size="14" font-weight="600">The memory graph</text>
+<text class="muted" x="70" y="215" font-size="12">entities, edges and their supersession history</text>
+<rect class="card" x="52" y="236" width="456" height="50" rx="9"/>
+<text x="70" y="257" font-size="14" font-weight="600">Projects, items, decisions, events</text>
+<text class="muted" x="70" y="275" font-size="12">isolated per project by construction</text>
+<rect class="card" x="52" y="296" width="456" height="50" rx="9"/>
+<text x="70" y="317" font-size="14" font-weight="600">Your Gemini API key</text>
+<text class="muted" x="70" y="335" font-size="12">macOS Keychain, never UserDefaults, never logged</text>
+<rect x="670" y="30" width="500" height="340" rx="14" fill="#fff4df" stroke="#bc6c00" stroke-width="1.3"/>
+<text x="696" y="70" font-size="19" font-weight="700" style="fill:#bc6c00">Sent to Gemini</text>
+<text class="muted" x="696" y="93" font-size="12.5">only what a single request needs, never a database dump</text>
+<rect class="card" x="692" y="116" width="456" height="50" rx="9"/>
+<text x="710" y="137" font-size="14" font-weight="600">Live audio</text>
+<text class="muted" x="710" y="155" font-size="12">streamed for transcription while listening</text>
+<rect class="card" x="692" y="176" width="456" height="50" rx="9"/>
+<text x="710" y="197" font-size="14" font-weight="600">The current turn + its context block</text>
+<text class="muted" x="710" y="215" font-size="12">the evidence selected for this question</text>
+<rect class="card" x="692" y="236" width="456" height="50" rx="9"/>
+<text x="710" y="257" font-size="14" font-weight="600">Extraction batches</text>
+<text class="muted" x="710" y="275" font-size="12">transcript text, to be turned into structured records</text>
+<rect class="card" x="692" y="296" width="456" height="50" rx="9"/>
+<text x="710" y="317" font-size="14" font-weight="600">One screen still, only if you enable it</text>
+<text class="muted" x="710" y="335" font-size="12">off by default, and listed in the answer's sources</text>
+<path class="flow" marker-end="url(#tipA)" d="M542 200 H656"/>
+<text class="lane" x="600" y="184" text-anchor="middle">PER REQUEST</text>
+</svg>

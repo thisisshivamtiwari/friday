@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 340" width="1200" height="340" role="img" aria-label="Friday: a local-first, project-aware meeting copilot for macOS">
+<style>
+  text { font-family: -apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif; fill: #1f2328; }
+  .mono { font-family: ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; }
+  .muted { fill: #59636e; }
+  .accent { fill: #bc6c00; }
+  .link { fill: #5b5bd6; }
+  .good { fill: #1a7f37; }
+  .lane { font-size: 11px; font-weight: 700; letter-spacing: 1.6px; fill: #59636e; }
+  .card { fill: #ffffff; stroke: #d0d7de; stroke-width: 1.2; }
+  .panel { fill: #f6f8fa; stroke: #d0d7de; stroke-width: 1; }
+  .wire { stroke: #59636e; stroke-width: 1.6; fill: none; }
+  .flow { stroke: #bc6c00; stroke-width: 2; fill: none; stroke-dasharray: 6 7;
+           animation: flow 1.1s linear infinite; }
+  .bar { fill: #ffb847; transform-box: fill-box; transform-origin: center;
+          animation: wave 1.5s ease-in-out infinite; }
+  .pulse { transform-box: fill-box; transform-origin: center;
+            animation: pulse 3.2s ease-in-out infinite; }
+  @keyframes flow { to { stroke-dashoffset: -26; } }
+  @keyframes wave { 0%,100% { transform: scaleY(.35); } 50% { transform: scaleY(1); } }
+  @keyframes pulse { 0%,100% { transform: scale(.94); opacity: .75; }
+                      50% { transform: scale(1.06); opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) { .flow, .bar, .pulse { animation: none; } }
+</style>
+<defs><marker id="tip" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" fill="#59636e"/></marker><marker id="tipA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" fill="#bc6c00"/></marker></defs>
+<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff8ec"/><stop offset="1" stop-color="#f1f0ff"/></linearGradient><radialGradient id="blob"><stop offset="0" stop-color="#ffb847"/><stop offset=".55" stop-color="#ffb847" stop-opacity=".55"/><stop offset="1" stop-color="#ffb847" stop-opacity="0"/></radialGradient></defs>
+<rect x="1" y="1" width="1198" height="338" rx="18" fill="url(#g)" stroke="#d0d7de"/>
+<circle class="pulse" cx="118" cy="128" r="62" fill="url(#blob)"/>
+<circle cx="118" cy="128" r="20" fill="#ffb847"/>
+<text x="206" y="134" font-size="78" font-weight="800" letter-spacing="-2">Friday</text>
+<text class="muted" x="210" y="180" font-size="21">A local-first, project-aware meeting copilot for macOS.</text>
+<text class="muted" x="210" y="210" font-size="21">It listens, remembers what matters, and answers from evidence.</text>
+<rect class="bar" x="870" y="107.0" width="7" height="22" rx="3.5" style="animation-delay:0.00s" opacity="0.55"/>
+<rect class="bar" x="885" y="98.0" width="7" height="40" rx="3.5" style="animation-delay:-0.19s" opacity="0.70"/>
+<rect class="bar" x="900" y="86.0" width="7" height="64" rx="3.5" style="animation-delay:-0.38s" opacity="0.85"/>
+<rect class="bar" x="915" y="101.0" width="7" height="34" rx="3.5" style="animation-delay:-0.57s" opacity="1.00"/>
+<rect class="bar" x="930" y="75.0" width="7" height="86" rx="3.5" style="animation-delay:-0.76s" opacity="0.55"/>
+<rect class="bar" x="945" y="92.0" width="7" height="52" rx="3.5" style="animation-delay:-0.95s" opacity="0.70"/>
+<rect class="bar" x="960" y="63.0" width="7" height="110" rx="3.5" style="animation-delay:-1.14s" opacity="0.85"/>
+<rect class="bar" x="975" y="83.0" width="7" height="70" rx="3.5" style="animation-delay:0.00s" opacity="1.00"/>
+<rect class="bar" x="990" y="70.0" width="7" height="96" rx="3.5" style="animation-delay:-0.19s" opacity="0.55"/>
+<rect class="bar" x="1005" y="96.0" width="7" height="44" rx="3.5" style="animation-delay:-0.38s" opacity="0.70"/>
+<rect class="bar" x="1020" y="79.0" width="7" height="78" rx="3.5" style="animation-delay:-0.57s" opacity="0.85"/>
+<rect class="bar" x="1035" y="58.0" width="7" height="120" rx="3.5" style="animation-delay:-0.76s" opacity="1.00"/>
+<rect class="bar" x="1050" y="89.0" width="7" height="58" rx="3.5" style="animation-delay:-0.95s" opacity="0.55"/>
+<rect class="bar" x="1065" y="73.0" width="7" height="90" rx="3.5" style="animation-delay:-1.14s" opacity="0.70"/>
+<rect class="bar" x="1080" y="100.0" width="7" height="36" rx="3.5" style="animation-delay:0.00s" opacity="0.85"/>
+<rect class="bar" x="1095" y="82.0" width="7" height="72" rx="3.5" style="animation-delay:-0.19s" opacity="1.00"/>
+<rect class="bar" x="1110" y="66.0" width="7" height="104" rx="3.5" style="animation-delay:-0.38s" opacity="0.55"/>
+<rect class="bar" x="1125" y="94.0" width="7" height="48" rx="3.5" style="animation-delay:-0.57s" opacity="0.70"/>
+<rect class="bar" x="1140" y="85.0" width="7" height="66" rx="3.5" style="animation-delay:-0.76s" opacity="0.85"/>
+<rect class="bar" x="1155" y="104.0" width="7" height="28" rx="3.5" style="animation-delay:-0.95s" opacity="1.00"/>
+<rect x="210" y="252" width="98.39999999999999" height="32" rx="16" fill="#ffffff" stroke="#d0d7de"/>
+<text x="259.2" y="273" text-anchor="middle" font-size="13.5" font-weight="600">macOS 13+</text>
+<rect x="320.4" y="252" width="144.0" height="32" rx="16" fill="#ffffff" stroke="#d0d7de"/>
+<text x="392.4" y="273" text-anchor="middle" font-size="13.5" font-weight="600">Swift · SwiftUI</text>
+<rect x="476.4" y="252" width="182.0" height="32" rx="16" fill="#ffffff" stroke="#d0d7de"/>
+<text x="567.4" y="273" text-anchor="middle" font-size="13.5" font-weight="600">Core Data, on-device</text>
+<rect x="670.4" y="252" width="166.79999999999998" height="32" rx="16" fill="#ffffff" stroke="#d0d7de"/>
+<text x="753.8" y="273" text-anchor="middle" font-size="13.5" font-weight="600">Gemini Live + REST</text>
+<rect x="849.1999999999999" y="252" width="159.2" height="32" rx="16" fill="#ffffff" stroke="#d0d7de"/>
+<text x="928.8" y="273" text-anchor="middle" font-size="13.5" font-weight="600">697 offline tests</text>
+</svg>

@@ -12,10 +12,22 @@ struct ChatMessage: Identifiable, Equatable {
         case response
     }
 
-    let id = UUID()
+    let id: UUID
     let role: Role
     var text: String
-    let timestamp: Date = Date()
+    let timestamp: Date
     /// True while a response is still streaming in
-    var isStreaming: Bool = false
+    var isStreaming: Bool
+
+    /// `id`/`timestamp` default to freshly generated values, same as before this had an
+    /// explicit initializer - existing call sites (`ChatMessage(role:text:)`) are unaffected.
+    /// The explicit parameters exist so ChatSessionStore can restore a persisted message with
+    /// its ORIGINAL identity and timestamp instead of minting new ones on every app relaunch.
+    init(id: UUID = UUID(), role: Role, text: String, timestamp: Date = Date(), isStreaming: Bool = false) {
+        self.id = id
+        self.role = role
+        self.text = text
+        self.timestamp = timestamp
+        self.isStreaming = isStreaming
+    }
 }

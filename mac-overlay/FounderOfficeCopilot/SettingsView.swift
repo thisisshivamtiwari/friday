@@ -53,6 +53,38 @@ struct SettingsView: View {
                 }
 
                 VStack(alignment: .leading, spacing: 6) {
+                    Text("Appearance")
+                        .font(.system(size: 12, weight: .semibold))
+                    Picker("", selection: Binding(
+                        get: { settings.appearance }, set: { settings.appearance = $0 }
+                    )) {
+                        ForEach(AppAppearance.allCases) { Text($0.title).tag($0) }
+                    }
+                    .pickerStyle(.segmented).labelsHidden()
+                    .accessibilityLabel("Window appearance")
+
+                    Text("Density")
+                        .font(.system(size: 12, weight: .semibold))
+                    Picker("", selection: Binding(
+                        get: { settings.density }, set: { settings.density = $0 }
+                    )) {
+                        ForEach(AppDensity.allCases) { Text($0.title).tag($0) }
+                    }
+                    .pickerStyle(.segmented).labelsHidden()
+                    .accessibilityLabel("Row density")
+
+                    Text("Screen context")
+                        .font(.system(size: 12, weight: .semibold))
+                    Toggle("Include a still of my screen with each response", isOn: Binding(
+                        get: { settings.screenContextEnabled },
+                        set: { settings.screenContextEnabled = $0 }
+                    ))
+                    .font(.system(size: 11))
+                    Text("Off by default. When on, a screenshot of your current screen is sent to Gemini with every response, and is listed in that answer's sources. Anything visible is included \u{2014} including other apps, documents and credentials.")
+                        .font(.system(size: 11))
+                        .foregroundColor(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+
                     Text("About you")
                         .font(.system(size: 12, weight: .semibold))
                     Text("Who you are, your role, and what you care about - included in every session so suggestions are personalized instead of generic.")
@@ -110,24 +142,23 @@ struct SettingsView: View {
                 }
 
                 VStack(alignment: .leading, spacing: 6) {
-                    Text("Your spoken language")
+                    Text("Transcription model")
                         .font(.system(size: 12, weight: .semibold))
-                    Text("Language for transcribing your own mic into \"You\" bubbles. This must match what you actually speak - unlike the \"Heard\" transcript (which auto-detects language), this one is locked to a single language per session and produces no transcript at all if it doesn't match.")
+                    Text("Live API model for continuous \"Heard\" transcription - auto-detects language.")
                         .font(.system(size: 11))
                         .foregroundColor(.secondary)
-                    Picker("", selection: $settings.transcriptionLocale) {
-                        ForEach(SettingsStore.transcriptionLocaleOptions, id: \.id) { option in
-                            Text(option.label).tag(option.id)
-                        }
-                    }
-                    .labelsHidden()
-                    .pickerStyle(.menu)
+                    TextField(SettingsStore.defaultGeminiModel, text: $settings.geminiModel)
+                        .textFieldStyle(.roundedBorder)
+                        .font(.system(size: 11, design: .monospaced))
                 }
 
                 VStack(alignment: .leading, spacing: 6) {
-                    Text("Gemini model")
+                    Text("Response model")
                         .font(.system(size: 12, weight: .semibold))
-                    TextField(SettingsStore.defaultGeminiModel, text: $settings.geminiModel)
+                    Text("Used only when you trigger a response (⌘⇧R) - a separate one-shot request, not the Live API.")
+                        .font(.system(size: 11))
+                        .foregroundColor(.secondary)
+                    TextField(SettingsStore.defaultResponseModel, text: $settings.responseModel)
                         .textFieldStyle(.roundedBorder)
                         .font(.system(size: 11, design: .monospaced))
                 }

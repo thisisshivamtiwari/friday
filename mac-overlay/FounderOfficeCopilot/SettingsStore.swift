@@ -14,29 +14,60 @@ final class SettingsStore: ObservableObject {
         static let aboutMe = "settings.aboutMe"
         static let rules = "settings.rules"
         static let geminiModel = "settings.geminiModel"
-        static let transcriptionLocale = "settings.transcriptionLocale"
+        static let responseModel = "settings.responseModel"
+        static let screenContextEnabled = "settings.screenContextEnabled"
+        static let appearance = "settings.appearance"
+        static let density = "settings.density"
+        static let hasCompletedOnboarding = "settings.hasCompletedOnboarding"
     }
 
-    /// Locales offered for the local on-device "You" transcript (SFSpeechRecognizer is
-    /// locked to a single locale per session - it can't auto-detect or switch languages
-    /// mid-conversation the way Gemini's own transcription does). Kept as a short curated
-    /// list rather than every SFSpeechRecognizer.supportedLocales() result, since most of
-    /// those aren't realistic choices for this user base.
-    static let transcriptionLocaleOptions: [(id: String, label: String)] = [
-        ("en-US", "English (US)"),
-        ("en-IN", "English (India)"),
-        ("hi-IN", "Hindi")
-    ]
-
-    /// Default Live API model - confirmed working against the real API via ListModels
-    /// plus a live round-trip test (2026-08-04): responseModalities=AUDIO with
-    /// outputAudioTranscription enabled returned a real transcribed reply and turnComplete
-    /// for this model. The "native-audio" family (also available to this key) was only
-    /// tested against responseModalities=TEXT, which it rejected - untested here with the
-    /// AUDIO+outputAudioTranscription combo GeminiLiveClient actually uses, so this
-    /// non-native-audio model is the one with a confirmed-working setup, not a guess.
-    /// Kept overridable here since these preview ids shift.
+    /// Live API model used for continuous transcription only ("Heard" bubbles) -
+    /// confirmed working against the real API via ListModels plus a live round-trip test
+    /// (2026-08-04): responseModalities=AUDIO with outputAudioTranscription enabled
+    /// returned a real transcribed reply and turnComplete for this model. Kept overridable
+    /// here since these preview ids shift.
     static let defaultGeminiModel = "gemini-3.1-flash-live-preview"
+
+    /// Model used for the one-shot "Respond Now" request - a plain generateContent call
+    /// (not the Live API), so this is a standard, non-Live model. Deliberately separate
+    /// from defaultGeminiModel: transcription needs a Live-capable model, responses don't,
+    /// and a fast general-purpose model is both cheaper and simpler for a single-turn
+    /// text-in/text-out request.
+    ///
+    /// Uses Google's "-latest" alias rather than a pinned version (e.g. "gemini-2.5-flash",
+    /// used until this app hit it returning 404 NOT_FOUND: "This model ... is no longer
+    /// available to new users") - the alias is Google's own answer to models getting
+    /// retired out from under pinned integrations, and always resolves to their current
+    /// recommended flash model instead of a specific snapshot that can go stale.
+    static let defaultResponseModel = "gemini-flash-latest"
+
+    /// Whether a still of the current screen is sent with each response request.
+    ///
+    /// DEFAULT OFF, deliberately and on evidence. The capture is genuinely useful ("what's on
+    /// screen right now?"), but it uploads WHATEVER is visible. During validation it sent a
+    /// screenshot containing an open `.env` file with a live API key, and on a
+    /// negative-retrieval benchmark question it caused the assistant to answer about a hotel
+    /// codebase that merely happened to be on screen instead of correctly saying it had nothing
+    /// stored. Sending the user's screen to a third party is not a reasonable silent default.
+    @Published var screenContextEnabled: Bool {
+        didSet { UserDefaults.standard.set(screenContextEnabled, forKey: DefaultsKey.screenContextEnabled) }
+    }
+
+    /// Window appearance. Applied to the workspace window only, so the always-on overlay keeps
+    /// the dark treatment it was designed for.
+    @Published var appearance: AppAppearance {
+        didSet { UserDefaults.standard.set(appearance.rawValue, forKey: DefaultsKey.appearance) }
+    }
+
+    /// Row density for the workspace.
+    @Published var density: AppDensity {
+        didSet { UserDefaults.standard.set(density.rawValue, forKey: DefaultsKey.density) }
+    }
+
+    /// Whether the first-run explanation has been shown. Persisted so it appears exactly once.
+    @Published var hasCompletedOnboarding: Bool {
+        didSet { UserDefaults.standard.set(hasCompletedOnboarding, forKey: DefaultsKey.hasCompletedOnboarding) }
+    }
 
     @Published var agentName: String {
         didSet { UserDefaults.standard.set(agentName, forKey: DefaultsKey.agentName) }
@@ -58,12 +89,8 @@ final class SettingsStore: ObservableObject {
         didSet { UserDefaults.standard.set(geminiModel, forKey: DefaultsKey.geminiModel) }
     }
 
-    /// Locale identifier (e.g. "en-US", "hi-IN") used for the local on-device "You"
-    /// transcript. Whatever language the user actually speaks needs to match this, or
-    /// SFSpeechRecognizer silently produces no transcript at all - not an error, just
-    /// empty/near-empty results that never populate a "You" bubble.
-    @Published var transcriptionLocale: String {
-        didSet { UserDefaults.standard.set(transcriptionLocale, forKey: DefaultsKey.transcriptionLocale) }
+    @Published var responseModel: String {
+        didSet { UserDefaults.standard.set(responseModel, forKey: DefaultsKey.responseModel) }
     }
 
     /// Backed by the Keychain rather than @Published+UserDefaults; reads/writes are
@@ -91,11 +118,24 @@ final class SettingsStore: ObservableObject {
         "gemini-2.5-flash-native-audio-preview-09-2025"
     ]
 
+    /// Response-model ids known to now 404 with NOT_FOUND/"no longer available to new
+    /// users" - same problem and same fix as knownStaleModelIDs above, kept as a separate
+    /// set since it's a different UserDefaults key with a different default.
+    private static let knownStaleResponseModelIDs: Set<String> = [
+        "gemini-2.5-flash"
+    ]
+
     private init() {
         let defaults = UserDefaults.standard
         agentName = defaults.string(forKey: DefaultsKey.agentName) ?? "Founder Office Copilot"
         aboutMe = defaults.string(forKey: DefaultsKey.aboutMe) ?? ""
         rules = defaults.string(forKey: DefaultsKey.rules) ?? SettingsStore.defaultRules
+        // Absent key -> false. `bool(forKey:)` already returns false for a missing key; this is
+        // spelled out so the OFF-by-default guarantee is visible rather than incidental.
+        screenContextEnabled = defaults.bool(forKey: DefaultsKey.screenContextEnabled)
+        appearance = AppAppearance(rawValue: defaults.string(forKey: DefaultsKey.appearance) ?? "") ?? .system
+        density = AppDensity(rawValue: defaults.string(forKey: DefaultsKey.density) ?? "") ?? .comfortable
+        hasCompletedOnboarding = defaults.bool(forKey: DefaultsKey.hasCompletedOnboarding)
 
         let storedModel = defaults.string(forKey: DefaultsKey.geminiModel)
         if let storedModel, SettingsStore.knownStaleModelIDs.contains(storedModel) {
@@ -105,7 +145,13 @@ final class SettingsStore: ObservableObject {
             geminiModel = storedModel ?? SettingsStore.defaultGeminiModel
         }
 
-        transcriptionLocale = defaults.string(forKey: DefaultsKey.transcriptionLocale) ?? "en-US"
+        let storedResponseModel = defaults.string(forKey: DefaultsKey.responseModel)
+        if let storedResponseModel, SettingsStore.knownStaleResponseModelIDs.contains(storedResponseModel) {
+            responseModel = SettingsStore.defaultResponseModel
+            print("[Settings] Migrated stale response model '\(storedResponseModel)' -> '\(SettingsStore.defaultResponseModel)'")
+        } else {
+            responseModel = storedResponseModel ?? SettingsStore.defaultResponseModel
+        }
     }
 
     private static let defaultRules = """

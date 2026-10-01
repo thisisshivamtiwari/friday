@@ -1,0 +1,1 @@
+../../../FounderOfficeCopilot/SensitiveContentGate.swift

@@ -13,6 +13,20 @@ final class CaptureVisibilityState: ObservableObject {
     private init() {}
 }
 
+// MARK: - Overlay Visibility State
+/// Whether the overlay window is actually on screen right now (not occluded by another
+/// window, not minimized, not hidden via orderOut) - driven by NSWindow's own occlusionState
+/// rather than just the explicit show()/hide() calls, so it also catches "covered by another
+/// app's window" the same way "explicitly hidden" is caught. AvatarBlobView uses this to stop
+/// its continuous per-frame Canvas animation while nobody could possibly be seeing it -
+/// TimelineView(.animation) does NOT pause itself just because its window is off-screen, so
+/// without this the animation burned CPU on every frame forever, even while hidden.
+final class OverlayVisibilityState: ObservableObject {
+    static let shared = OverlayVisibilityState()
+    @Published var isVisible = false
+    private init() {}
+}
+
 // MARK: - Private Overlay Window Controller
 /// Controls the floating overlay window that stays invisible during screen sharing.
 /// Resizable (small -> large -> maximize) so the Jarvis-style layout can adapt, rather than
@@ -65,6 +79,18 @@ final class PrivateOverlayWindowController: NSWindowController {
         // Double-click the draggable background to maximize/restore - the standard macOS
         // title-bar-zoom convention, applied here since this window hides its title bar
         hostingView.onDoubleClick = { [weak self] in self?.toggleMaximize() }
+
+        // Keeps OverlayVisibilityState accurate for every reason the window can stop being
+        // actually visible - explicit hide(), being covered by another window, minimizing -
+        // not just the two paths this controller itself drives (show()/hide()).
+        NotificationCenter.default.addObserver(
+            forName: NSWindow.didChangeOcclusionStateNotification,
+            object: window,
+            queue: .main
+        ) { [weak window] _ in
+            guard let window else { return }
+            OverlayVisibilityState.shared.isVisible = window.occlusionState.contains(.visible)
+        }
     }
 
     required init?(coder: NSCoder) {

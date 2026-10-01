@@ -27,12 +27,12 @@ enum GeminiLiveEvent {
 /// ai.google.dev/api/live), so this speaks the documented JSON protocol directly over
 /// `URLSessionWebSocketTask` rather than pulling in a third-party dependency.
 ///
-/// Turn boundaries are entirely client-controlled (automaticActivityDetection.disabled),
-/// not left to the server's own voice-activity-detection: audio streams continuously from
-/// the moment `activityStart` is sent, but the model only generates a reply once
-/// `activityEnd` is sent - i.e. only when the user explicitly asks for one. This is what
-/// makes "always listening, replies only on demand" possible without the server itself
-/// deciding when a pause means "the user is done talking."
+/// Used for continuous input transcription only ("Heard" bubbles) - normal automatic
+/// voice-activity-detection turn boundaries, since nothing here depends on this
+/// connection's own turn/reply state anymore. Actual responses come from
+/// GeminiResponseGenerator's one-shot REST call over the locally-stored transcript
+/// instead, specifically so a drop/reconnect on THIS connection never loses the ability
+/// to respond - it can only ever lose a few seconds of transcription.
 /// https://ai.google.dev/api/live
 final class GeminiLiveClient {
     private let apiKey: String
@@ -94,20 +94,6 @@ final class GeminiLiveClient {
         isSetupComplete = false
     }
 
-    /// Opens the always-on listening window - sent once right after setupComplete. Audio
-    /// streams continuously from this point, but the model stays silent until sendActivityEnd()
-    func sendActivityStart() {
-        guard isSetupComplete else { return }
-        send(json: ["realtimeInput": ["activityStart": [String: Any]()]])
-    }
-
-    /// Closes the current listening window and asks the model to reply to everything heard
-    /// since the last activityStart - this is the entire "respond now" trigger mechanism
-    func sendActivityEnd() {
-        guard isSetupComplete else { return }
-        send(json: ["realtimeInput": ["activityEnd": [String: Any]()]])
-    }
-
     /// Streams a chunk of 16-bit PCM, 16kHz, mono audio - the format the Live API requires
     func sendAudioChunk(_ data: Data) {
         guard isSetupComplete else { return }
@@ -138,11 +124,12 @@ final class GeminiLiveClient {
     private func sendSetup() {
         // Every Live-capable model currently available (confirmed against the real API,
         // not just docs) rejects responseModalities=TEXT - real-time audio-to-audio is
-        // mandatory. So we request AUDIO but also turn on outputAudioTranscription, which
-        // gives a text transcript of the spoken reply alongside the audio; the audio bytes
-        // in modelTurn.parts are simply discarded in handleServerMessage below, since this
-        // app only ever wants text on screen, never spoken output.
-        var setup: [String: Any] = [
+        // mandatory even though this connection's own replies are never displayed
+        // (outputAudioTranscription is deliberately not requested - see the class doc
+        // comment for why responses come from a separate mechanism entirely). Automatic
+        // activity detection is left at its default (not disabled) since real turn
+        // boundaries no longer matter here - only inputTranscription does.
+        let setup: [String: Any] = [
             "model": "models/\(model)",
             "generationConfig": [
                 "responseModalities": ["AUDIO"]
@@ -151,28 +138,15 @@ final class GeminiLiveClient {
                 "parts": [["text": systemInstruction]]
             ],
             "inputAudioTranscription": [String: Any](),
-            "outputAudioTranscription": [String: Any](),
-            // Client controls turn boundaries entirely (see the class doc comment) -
-            // https://ai.google.dev/api/live
-            "realtimeInputConfig": [
-                "automaticActivityDetection": ["disabled": true]
-            ],
             // Extends a session past the default ~15 minute cap by having the server prune/
             // summarize the oldest turns once the token count crosses triggerTokens, rather
-            // than hard-disconnecting. Our own local chat history is never pruned (see
-            // AIEngineController) so the verbatim record survives even if Gemini's own
-            // context gets compressed.
+            // than hard-disconnecting.
             "contextWindowCompression": [
                 "triggerTokens": 20000,
                 "slidingWindow": ["targetTokens": 10000]
-            ]
+            ],
+            "sessionResumption": resumptionHandle.map { ["handle": $0] } ?? [String: Any]()
         ]
-
-        if let resumptionHandle {
-            setup["sessionResumption"] = ["handle": resumptionHandle]
-        } else {
-            setup["sessionResumption"] = [String: Any]()
-        }
 
         send(json: ["setup": setup])
     }
@@ -227,12 +201,22 @@ final class GeminiLiveClient {
     }
 
     private func handleServerMessage(_ text: String) {
-        print("[GeminiLive][t=\(elapsed())] << \(text.prefix(300))")
-
         let events = GeminiLiveMessageParser.parse(text)
-        if events.isEmpty {
-            print("[GeminiLive][t=\(elapsed())] Message produced no events (not JSON, or a message type we don't act on)")
+
+        // sessionResumptionUpdate arrives roughly once a second for the life of the
+        // connection and carries nothing worth seeing beyond "it updated" - logging the
+        // full raw JSON body (a string copy + print() call) for every single one was pure
+        // noise over a long session. Everything else still gets the full line, since that's
+        // what actually matters when debugging.
+        if events.count == 1, case .sessionResumptionUpdate = events[0] {
+            print("[GeminiLive][t=\(elapsed())] << sessionResumptionUpdate (handle refreshed)")
+        } else {
+            print("[GeminiLive][t=\(elapsed())] << \(text.prefix(300))")
+            if events.isEmpty {
+                print("[GeminiLive][t=\(elapsed())] Message produced no events (not JSON, or a message type we don't act on)")
+            }
         }
+
         for event in events {
             if case .connected = event {
                 isSetupComplete = true

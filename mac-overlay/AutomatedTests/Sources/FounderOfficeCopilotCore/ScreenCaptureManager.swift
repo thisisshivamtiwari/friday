@@ -1,0 +1,1 @@
+../../../FounderOfficeCopilot/ScreenCaptureManager.swift
